@@ -6,10 +6,10 @@ $(function () {
         body: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias laborum reprehenderit itaque est qui ab dolor, ipsum iste provident placeat asperiores, eos amet eveniet nulla quaerat enim dignissimos atque adipisci.'
 
     };
-    let pageSize = 5; // Ennyi cikk kerül 1 oldalra
+    let pageSize =5; // Ennyi cikk kerül 1 oldalra
     let renderableMaxPage = 10; // Ennyi lapozót jelenít meg maximum
     let sumArticle = 100; // Ennyi cikket jelenít meg
-    
+
     let $contentWrapper = $('#content-wrapper');
     let $pagination = $('#pagination');
     let articleCollection = [];
@@ -31,6 +31,7 @@ $(function () {
     let paginationHTMLArraySum = 0;
     let paginationHTMLArrayAverage = 0;
     let firstLoad = true;
+    let lastLoad = false;
     let currentBiggerAverage = false;
     let maxPageBiggerPagHTMLArrayMax = false;
     let notFirst = false;
@@ -53,7 +54,7 @@ $(function () {
 
     // Lapozó kiszámolás    
 
-    if(maxPage != 1){
+    if (maxPage != 1) {
         calculatePaginator();
     }
 
@@ -74,6 +75,14 @@ $(function () {
                 $nextPage.show();
                 $lastPage.show();
             };
+        }
+        if (lastLoad) {
+            $paginationLastButton = $('div#pagination button:last-child');
+            $paginationLastButton.removeClass('btn-light').addClass('btn-primary');
+            lastLoad = false;
+            $nextPage.addClass('disabled');
+            $lastPage.addClass('disabled');
+            
         }
 
         // gombra reagálás
@@ -142,6 +151,8 @@ $(function () {
         startPage = 0;
         $pagination.html('');
         paginationHTMLArray = [];
+        $nextPage.removeClass('disabled');
+        $lastPage.removeClass('disabled');
         calculatePaginator();
     });
 
@@ -156,7 +167,13 @@ $(function () {
     })
 
     $lastPage.click(function () {
-        RenderPage(maxPage);
+        lastLoad = true;
+        pageIndex = maxPage
+        RenderPage(pageIndex);
+        startPage = maxPage - renderableMaxPage;
+        $pagination.html('');
+        paginationHTMLArray = [];
+        calculatePaginator();
     })
 
     RenderPage(1);
