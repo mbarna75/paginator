@@ -27,7 +27,7 @@ $(function () {
     let $paginationButtons = ''
 
     // cikkek generálása
-    for (let index = 0; index < 50; index++) {
+    for (let index = 0; index < 32; index++) {
         articleCollection.push(templateArtticle);
     }
 
@@ -41,6 +41,9 @@ $(function () {
     }
     console.log(maxPage);
     console.log(renderableMaxPage);
+    if (maxPage < 11) {
+        renderableMaxPage = maxPage;
+    }
 
 
     // Lapozó kiszámolás    
@@ -124,20 +127,43 @@ $(function () {
     RenderPage(1);
 
     console.log(articleCollection);
+    console.log(articleCollection.length % 5);
+
 
     function RenderPage(pageIndex) {
         $contentWrapper.html('');
-        for (
-            let index = (pageIndex - 1) * pageSize;
-            index < pageIndex * pageSize;
-            index++
-        ) {
-            RenderArticle(index);
+        console.log(pageIndex);
+        console.log(maxPage);
+
+        if (pageIndex != maxPage) {
+            for (
+                let index = (pageIndex - 1) * pageSize;
+                index < pageIndex * pageSize;
+                index++
+            ) {
+                RenderArticle(index);
+                console.log(pageIndex);
+                console.log(pageSize);
+                // console.log(index);
+            }
+        }
+        else {
+            for (
+                let index = (pageIndex - 1) * pageSize;
+                index < (pageIndex * pageSize) - ((pageSize)-(articleCollection.length % pageSize));
+                index++
+            ) {
+                RenderArticle(index);
+                console.log(pageIndex);
+                console.log((pageIndex * pageSize) - ((pageSize)-(articleCollection.length % pageSize)));
+                // console.log(index);
+            }
 
         }
     };
     function RenderArticle(index) {
         let article = articleCollection[index];
+        
         let articleHtml = '<div><strong>' + article.title + ' (' + (index + 1) + ')</strong><p>'
             + article.body + '</p></div>';
 
