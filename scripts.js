@@ -48,7 +48,9 @@ $(function () {
     calculatePaginator();
 
     function calculatePaginator() {
-        for (let page = startPage; page < startPage + renderableMaxPage; page++) { RenderPagination(page) };
+        for (let page = startPage; page < startPage + renderableMaxPage; page++) {
+            RenderPagination(page)
+        };
         $paginationButtons = $('div#pagination button');
         $paginationLastButton = $('div#pagination button:first-child');
         $paginationLastButton.removeClass('btn-light').addClass('btn-primary');
@@ -57,7 +59,35 @@ $(function () {
         // ha csak 1 oldal van, azt még le kell kezelni
         $nextPage.show();
         $lastPage.show();
-    }
+
+        // gombra reagálás
+        $paginationButtons.click(function () {
+            console.log('itt vagyok');
+            $currentButton = $(this);
+            $paginationLastButton.removeClass('btn-primary').addClass('btn-light');
+            $paginationLastButton = $currentButton;
+            $currentButton.removeClass('btn-light');
+            $currentButton.addClass('btn-primary');
+            pageIndex = $currentButton.text();
+            RenderPage(pageIndex);
+            if (pageIndex != 1) {
+                $firstPage.removeClass('disabled');
+                $prevPage.removeClass('disabled');
+            }
+            else {
+                $firstPage.addClass('disabled');
+                $prevPage.addClass('disabled');
+            }
+            if (pageIndex != maxPage) {
+                $nextPage.removeClass('disabled');
+                $lastPage.removeClass('disabled');
+            }
+            else {
+                $nextPage.addClass('disabled');
+                $lastPage.addClass('disabled');
+            }
+        });
+    };
     // lapozó kirajzolás
     function RenderPagination(page) {
         // kirajzolás, ha az oldalak száma <= 10
@@ -65,35 +95,6 @@ $(function () {
         $pagination.append(paginationHtml);
     }
 
-    // gombra reagálás
-    $paginationButtons.click(function () {
-        console.log('itt vagyok');
-        $currentButton = $(this);
-        $paginationLastButton.removeClass('btn-primary').addClass('btn-light');
-        $paginationLastButton = $currentButton;
-        $currentButton.removeClass('btn-light');
-        $currentButton.addClass('btn-primary');
-        pageIndex = $currentButton.text();
-        RenderPage(pageIndex);
-        if (pageIndex != 1) {
-            $firstPage.removeClass('disabled');
-            $prevPage.removeClass('disabled');
-        }
-        else {
-            $firstPage.addClass('disabled');
-            $prevPage.addClass('disabled');
-        }
-        if (pageIndex != maxPage) {
-            $nextPage.removeClass('disabled');
-            $lastPage.removeClass('disabled');
-        }
-        else {
-            $nextPage.addClass('disabled');
-            $lastPage.addClass('disabled');
-        }
-
-
-    });
 
     $firstPage.click(function () {
         pageIndex = 1;
@@ -142,5 +143,5 @@ $(function () {
 
         $contentWrapper.append(articleHtml);
     }
-    
+
 });
