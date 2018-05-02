@@ -6,14 +6,16 @@ $(function () {
         body: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias laborum reprehenderit itaque est qui ab dolor, ipsum iste provident placeat asperiores, eos amet eveniet nulla quaerat enim dignissimos atque adipisci.'
 
     };
+    let pageSize = 5; // Ennyi cikk kerül 1 oldalra
+    let renderableMaxPage = 10; // Ennyi lapozót jelenít meg maximum
+    let sumArticle = 100; // Ennyi cikket jelenít meg
+    
     let $contentWrapper = $('#content-wrapper');
     let $pagination = $('#pagination');
     let articleCollection = [];
-    let pageSize = 5;
     let maxPage = 0;
     let $currentButton = '';
     let $oldButton = '';
-    let renderableMaxPage = 10;
     let $paginationLastButton = '';
     let paginationHtml = '';
     let $beforePages = $('#beforepages');
@@ -38,20 +40,22 @@ $(function () {
     let middlePaginationButton = 0
 
     // cikkek generálása
-    for (let index = 0; index < 100; index++) {
+    for (let index = 0; index < sumArticle; index++) {
         articleCollection.push(templateArtticle);
     }
 
     // oldalak kiszámolása
     maxArtticle = articleCollection.length;
-    maxPage = Math.ceil(maxArtticle / 5);
+    maxPage = Math.ceil(maxArtticle / pageSize);
     if (maxPage < 11) {
         renderableMaxPage = maxPage;
     }
 
     // Lapozó kiszámolás    
 
-    calculatePaginator();
+    if(maxPage != 1){
+        calculatePaginator();
+    }
 
     function calculatePaginator() {
         paginationHTMLArray = [];
@@ -87,7 +91,7 @@ $(function () {
             maxPageBiggerPagHTMLArrayMax = maxPage > paginationHTMLArray[(renderableMaxPage - 1)];
             notFirst = paginationHTMLArray[0] != 1;
             currentSmallerAverage = pageIndex < paginationHTMLArrayAverage;
-            if ((currentBiggerAverage && maxPageBiggerPagHTMLArrayMax) || (currentSmallerAverage && (paginationHTMLArray[0] != 1))) {
+            if ((currentBiggerAverage && maxPageBiggerPagHTMLArrayMax) || (notFirst && currentSmallerAverage)) {
                 startPage = pageIndex - middlePaginationButton;
                 $pagination.html('');
                 calculatePaginator();
@@ -96,6 +100,7 @@ $(function () {
                 $currentButton.addClass('btn-primary');
             }
             else {
+                console.log(this);
                 $currentButton = $('div#pagination button:nth-child(' + middlePaginationButton + ')');
                 if ($(this).text() != middlePaginationButton) {
                     $currentButton.removeClass('btn-primary');
