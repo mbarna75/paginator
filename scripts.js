@@ -41,7 +41,8 @@ $(function () {
     let smaller = false;
     let bigger = false;
     let middlePaginationButton = 0
-    let prevChanger = 0;
+    let buttonChanger = 0;
+    let buttonNew = 0;
 
     // cikkek generálása
     for (let index = 0; index < sumArticle; index++) {
@@ -55,14 +56,12 @@ $(function () {
         renderableMaxPage = maxPage;
     }
 
-    // Lapozó kiszámolás    
-
     if (maxPage != 1) {
         calculatePaginator();
     }
 
+    // Lapozó kiszámolás    
     function calculatePaginator() {
-
         paginationHTMLArray = [];
         for (let page = startPage; page < startPage + renderableMaxPage; page++) {
             RenderPagination(page)
@@ -89,18 +88,7 @@ $(function () {
             $firstPage.removeClass('disabled');
             $prevPage.removeClass('disabled');
         }
-        // if (prevLoad) {
-
-        //     $paginationLastButton = $('div#pagination button:nth-child(' + (pageIndex) + ')');
-        //     $paginationLastButton.removeClass('btn-light').addClass('btn-primary');
-        //     prevLoad = false;
-        // }
-        // if (nextLoad) {
-        //     $paginationLastButton = $('div#pagination button:nth-child(6)');
-        //     $paginationLastButton.removeClass('btn-light').addClass('btn-primary');
-        //     nextLoad = false;
-        // }
-
+       
         // gombra reagálás
         $paginationButtons.click(function () {
             $currentButton = $(this);
@@ -110,7 +98,7 @@ $(function () {
             $currentButton.addClass('btn-primary');
             pageIndex = $currentButton.text();
             middlePaginationButton = Math.round(renderableMaxPage / 2);
-            //debugger;
+
             // Újra kell-e rajzolni a paginatort?
             currentBiggerAverage = pageIndex > paginationHTMLArrayAverage;
             maxPageBiggerPagHTMLArrayMax = maxPage > paginationHTMLArray[(renderableMaxPage - 1)];
@@ -132,6 +120,7 @@ $(function () {
                     $currentButton.addClass('btn-light');
                 }
             }
+
             RenderPage(pageIndex);
             if (pageIndex != 1) {
                 $firstPage.removeClass('disabled');
@@ -151,15 +140,17 @@ $(function () {
             }
         });
     };
+    
     // lapozó kirajzolás
     function RenderPagination(page) {
-        paginationHtml = '<button type="button" class="btn btn-light">' + (page + 1) + '</button>';
+        paginationHtml = '<button type="button" class="btn btn-light" style="width: 50px">' + (page + 1) + '</button>';
         paginationHTMLArray.push(page + 1);
         paginationHTMLArraySum = paginationHTMLArray.reduce((x, y) => x + y);
         paginationHTMLArrayAverage = paginationHTMLArraySum / paginationHTMLArray.length;
         $pagination.append(paginationHtml);
     }
 
+    // First (<<) gombra kattintás
     $firstPage.click(function () {
         firstLoad = true;
         pageIndex = 1;
@@ -171,37 +162,41 @@ $(function () {
         $lastPage.removeClass('disabled');
         calculatePaginator();
     });
-
+    
+    // Prev (<) gombra kattintás
     $prevPage.click(function () {
         if (pageIndex != 1) {
-            prevChanger = $('div#pagination button:contains(' + (pageIndex - 1) + ')');
+            buttonNew = pageIndex - 1;
+            buttonChanger = $('div#pagination button:contains(' + buttonNew + ')');
             if (pageIndex - 1 == 1) {
                 $firstPage.click();
             }
             else {
-                prevChanger.click();
+                buttonChanger.click();
             }
         }
     })
-
+    
+    // Next (>) gombra kattintás
     $nextPage.click(function () {
-        console.log(pageIndex);
         if (pageIndex != maxPage) {
-            nextLoad = true;
-            pageIndex++;
-            RenderPage(pageIndex);
-            startPage++;
-            $pagination.html('');
-            paginationHTMLArray = [];
-            calculatePaginator();
-
-
+            if (pageIndex == 0) {
+                pageIndex = pageIndex + 2;
+                $paginationButtons = $('div#pagination button:contains(' + pageIndex + ')');
+                $paginationButtons.click();
+            }
+            else {
+                pageIndex++;
+                $paginationButtons = $('div#pagination button:contains(' + pageIndex + ')');
+                $paginationButtons.click();
+            }
         }
     })
-
+    
+    // Last (>) gombra kattintás
     $lastPage.click(function () {
         lastLoad = true;
-        pageIndex = maxPage
+        pageIndex = maxPage;
         RenderPage(pageIndex);
         startPage = maxPage - renderableMaxPage;
         $pagination.html('');
