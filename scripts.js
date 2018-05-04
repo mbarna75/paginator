@@ -3,39 +3,39 @@ $(function () {
     // Elemek összegyűjtése
     // Megadható változók
     let pageSize = 5; // Ennyi cikk kerül 1 oldalra
-    let renderableMaxPage = 8; // Ennyi lapozót jelenít meg maximum. Maximum megadható: 10
+    let renderableMaxPage = 10; // Az egyszerre kirajzolandó oldalgombok száma. 3-10 közötti érték adható meg.
     let sumArticle = 100; // Ennyi cikket jelenít meg
-    
+
     // JQuery változók
-    let $paginationButtons = '';
     let $contentWrapper = $('#content-wrapper');
     let $pagination = $('#pagination');
-    let $currentButton = '';
-    let $paginationLastButton = '';
     let $firstPage = $('#first');
     let $prevPage = $('#prev');
     let $nextPage = $('#next');
     let $lastPage = $('#last');
-    let $buttonChanger = '';
+    let $paginationButtons = $('');
+    let $currentButton = $('');
+    let $paginationLastButton = $('');
+    let $buttonChanger = $('');
     let $lastButton = $('');
-    
+
     // Program változók
-    let articleCollection = [];
     let maxPage = 0;
-    let paginationHtml = '';
-    let paginationHTMLArray = [];
     let paginationHTMLArraySum = 0;
     let paginationHTMLArrayAverage = 0;
     let pageIndex = 0;
     let startPage = 0;
+    let middlePaginationButton = 0;
+    let buttonNew = 0;
+    let paginationHtml = '';
     let firstLoad = true;
     let lastLoad = false;
     let currentBiggerAverage = false;
     let maxPageBiggerPagHTMLArrayMax = false;
     let notFirst = false;
     let currentSmallerAverage = false;
-    let middlePaginationButton = 0;
-    let buttonNew = 0;
+    let articleCollection = [];
+    let paginationHTMLArray = [];
     let templateArtticle = {
         title: 'Mai hírek',
         body: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias laborum reprehenderit itaque est qui ab dolor, ipsum iste provident placeat asperiores, eos amet eveniet nulla quaerat enim dignissimos atque adipisci.'
@@ -53,9 +53,9 @@ $(function () {
         renderableMaxPage = maxPage;
     }
 
-    if (renderableMaxPage > 10) {
+    if (renderableMaxPage > 10 || renderableMaxPage < 3) {
         renderableMaxPage = 10;
-        alert("Maximum 10 számláló jeleníthető meg egyszerre!");
+        alert('A megadott értéknek 3-10 közé kell esnie!');
     }
 
     if (maxPage != 1) {
@@ -91,10 +91,9 @@ $(function () {
             $prevPage.removeClass('disabled');
         }
 
-        // gombra reagálás
+        // Gombra reagálás
         $paginationButtons.click(function () {
             $currentButton = $(this);
-            debugger;
             $paginationLastButton.removeClass('btn-primary').addClass('btn-light');
             $paginationLastButton = $currentButton;
             $currentButton.removeClass('btn-light').addClass('btn-primary');
@@ -104,7 +103,7 @@ $(function () {
             maxPageBiggerPagHTMLArrayMax = maxPage > paginationHTMLArray[(renderableMaxPage - 1)];
             notFirst = paginationHTMLArray[0] != 1;
             currentSmallerAverage = pageIndex < paginationHTMLArrayAverage;
-            
+
             // Újra kell-e rajzolni a paginatort?
             if ((currentBiggerAverage && maxPageBiggerPagHTMLArrayMax) || (notFirst && currentSmallerAverage)) {
                 // Ha az elején vagyunk
@@ -120,10 +119,11 @@ $(function () {
                 else if (parseInt(pageIndex) + middlePaginationButton > maxPage) {
                     startPage = maxPage - renderableMaxPage;
                     $pagination.html('');
-                    debugger;
                     calculatePaginator();
                     $currentButton = $(this);
-                    $currentButton.removeClass('btn-light').addClass('btn-primary');
+                    buttonNew = ($currentButton.text());
+                    $buttonChanger = $('div#pagination button:contains(' + buttonNew + ')');
+                    $buttonChanger.click();
                     $lastButton = $currentButton;
                 }
                 // Egyéb esetben
