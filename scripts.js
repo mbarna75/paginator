@@ -3,7 +3,7 @@ $(function () {
     // Elemek összegyűjtése
     // Megadható változók
     let pageSize = 5; // Ennyi cikk kerül 1 oldalra
-    let renderableMaxPage = 10; // Ennyi lapozót jelenít meg maximum. Maximum megadható: 10
+    let renderableMaxPage = 8; // Ennyi lapozót jelenít meg maximum. Maximum megadható: 10
     let sumArticle = 100; // Ennyi cikket jelenít meg
     
     // JQuery változók
@@ -94,6 +94,7 @@ $(function () {
         // gombra reagálás
         $paginationButtons.click(function () {
             $currentButton = $(this);
+            debugger;
             $paginationLastButton.removeClass('btn-primary').addClass('btn-light');
             $paginationLastButton = $currentButton;
             $currentButton.removeClass('btn-light').addClass('btn-primary');
@@ -119,6 +120,7 @@ $(function () {
                 else if (parseInt(pageIndex) + middlePaginationButton > maxPage) {
                     startPage = maxPage - renderableMaxPage;
                     $pagination.html('');
+                    debugger;
                     calculatePaginator();
                     $currentButton = $(this);
                     $currentButton.removeClass('btn-light').addClass('btn-primary');
