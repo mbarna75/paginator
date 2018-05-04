@@ -1,48 +1,45 @@
 $(function () {
 
-    // elemek összegyűjtése
-    let templateArtticle = {
-        title: 'Mai hírek',
-        body: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias laborum reprehenderit itaque est qui ab dolor, ipsum iste provident placeat asperiores, eos amet eveniet nulla quaerat enim dignissimos atque adipisci.'
-
-    };
+    // Elemek összegyűjtése
+    // Megadható változók
     let pageSize = 5; // Ennyi cikk kerül 1 oldalra
-    let renderableMaxPage = 10; // Ennyi lapozót jelenít meg maximum
+    let renderableMaxPage = 10; // Ennyi lapozót jelenít meg maximum. Maximum megadható: 10
     let sumArticle = 100; // Ennyi cikket jelenít meg
-
+    
+    // JQuery változók
+    let $paginationButtons = '';
     let $contentWrapper = $('#content-wrapper');
     let $pagination = $('#pagination');
-    let articleCollection = [];
-    let maxPage = 0;
     let $currentButton = '';
-    let $oldButton = '';
     let $paginationLastButton = '';
-    let paginationHtml = '';
-    let $beforePages = $('#beforepages');
-    let $afterPages = $('#afterpages');
     let $firstPage = $('#first');
     let $prevPage = $('#prev');
     let $nextPage = $('#next');
     let $lastPage = $('#last');
-    let pageIndex = 0;
-    let startPage = 0;
-    let $paginationButtons = ''
+    let $buttonChanger = '';
+    let $lastButton = $('');
+    
+    // Program változók
+    let articleCollection = [];
+    let maxPage = 0;
+    let paginationHtml = '';
     let paginationHTMLArray = [];
     let paginationHTMLArraySum = 0;
     let paginationHTMLArrayAverage = 0;
+    let pageIndex = 0;
+    let startPage = 0;
     let firstLoad = true;
-    let nextLoad = false;
-    let prevLoad = false;
     let lastLoad = false;
     let currentBiggerAverage = false;
     let maxPageBiggerPagHTMLArrayMax = false;
     let notFirst = false;
     let currentSmallerAverage = false;
-    let smaller = false;
-    let bigger = false;
-    let middlePaginationButton = 0
-    let buttonChanger = 0;
+    let middlePaginationButton = 0;
     let buttonNew = 0;
+    let templateArtticle = {
+        title: 'Mai hírek',
+        body: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias laborum reprehenderit itaque est qui ab dolor, ipsum iste provident placeat asperiores, eos amet eveniet nulla quaerat enim dignissimos atque adipisci.'
+    };
 
     // cikkek generálása
     for (let index = 0; index < sumArticle; index++) {
@@ -52,8 +49,13 @@ $(function () {
     // oldalak kiszámolása
     maxArtticle = articleCollection.length;
     maxPage = Math.ceil(maxArtticle / pageSize);
-    if (maxPage < 11) {
+    if (maxPage < 11 | renderableMaxPage > maxPage) {
         renderableMaxPage = maxPage;
+    }
+
+    if (renderableMaxPage > 10) {
+        renderableMaxPage = 10;
+        alert("Maximum 10 számláló jeleníthető meg egyszerre!");
     }
 
     if (maxPage != 1) {
@@ -64,8 +66,8 @@ $(function () {
     function calculatePaginator() {
         paginationHTMLArray = [];
         for (let page = startPage; page < startPage + renderableMaxPage; page++) {
-            RenderPagination(page)
-        };
+            RenderPagination(page);
+        }
 
         $paginationButtons = $('div#pagination button');
         if (firstLoad) {
@@ -77,7 +79,7 @@ $(function () {
             if (maxPage > 1) {
                 $nextPage.show();
                 $lastPage.show();
-            };
+            }
         }
         if (lastLoad) {
             $paginationLastButton = $('div#pagination button:last-child');
@@ -88,37 +90,55 @@ $(function () {
             $firstPage.removeClass('disabled');
             $prevPage.removeClass('disabled');
         }
-       
+
         // gombra reagálás
         $paginationButtons.click(function () {
             $currentButton = $(this);
             $paginationLastButton.removeClass('btn-primary').addClass('btn-light');
             $paginationLastButton = $currentButton;
-            $currentButton.removeClass('btn-light');
-            $currentButton.addClass('btn-primary');
+            $currentButton.removeClass('btn-light').addClass('btn-primary');
             pageIndex = $currentButton.text();
             middlePaginationButton = Math.round(renderableMaxPage / 2);
-
-            // Újra kell-e rajzolni a paginatort?
             currentBiggerAverage = pageIndex > paginationHTMLArrayAverage;
             maxPageBiggerPagHTMLArrayMax = maxPage > paginationHTMLArray[(renderableMaxPage - 1)];
             notFirst = paginationHTMLArray[0] != 1;
             currentSmallerAverage = pageIndex < paginationHTMLArrayAverage;
+            
+            // Újra kell-e rajzolni a paginatort?
             if ((currentBiggerAverage && maxPageBiggerPagHTMLArrayMax) || (notFirst && currentSmallerAverage)) {
-                startPage = pageIndex - middlePaginationButton;
-                $pagination.html('');
-                calculatePaginator();
-                $currentButton = $('div#pagination button:nth-child(' + middlePaginationButton + ')');
-                $currentButton.removeClass('btn-light');
-                $currentButton.addClass('btn-primary');
-            }
-            else {
-
-                $currentButton = $('div#pagination button:nth-child(' + middlePaginationButton + ')');
-                if ($(this).text() != middlePaginationButton) {
-                    $currentButton.removeClass('btn-primary');
-                    $currentButton.addClass('btn-light');
+                // Ha az elején vagyunk
+                if (pageIndex - middlePaginationButton < 0) {
+                    startPage = 0;
+                    $pagination.html('');
+                    calculatePaginator();
+                    $currentButton = $('div#pagination button:nth-child(' + pageIndex + ')');
+                    $currentButton.removeClass('btn-light').addClass('btn-primary');
+                    $lastButton = $currentButton;
                 }
+                // Ha a végén vagyunk
+                else if (parseInt(pageIndex) + middlePaginationButton > maxPage) {
+                    startPage = maxPage - renderableMaxPage;
+                    $pagination.html('');
+                    calculatePaginator();
+                    $currentButton = $(this);
+                    $currentButton.removeClass('btn-light').addClass('btn-primary');
+                    $lastButton = $currentButton;
+                }
+                // Egyéb esetben
+                else {
+                    startPage = pageIndex - middlePaginationButton;
+                    $pagination.html('');
+                    calculatePaginator();
+                    $currentButton = $('div#pagination button:nth-child(' + middlePaginationButton + ')');
+                    $currentButton.removeClass('btn-light').addClass('btn-primary');
+                    $lastButton = $currentButton;
+                }
+            }
+            // Ha nem kell újra rajzolni
+            else {
+                $currentButton.removeClass('btn-light').addClass('btn-primary');
+                $lastButton.removeClass('btn-primary').addClass('btn-light');
+                $lastButton = $('');
             }
 
             RenderPage(pageIndex);
@@ -140,7 +160,7 @@ $(function () {
             }
         });
     };
-    
+
     // lapozó kirajzolás
     function RenderPagination(page) {
         paginationHtml = '<button type="button" class="btn btn-light" style="width: 50px">' + (page + 1) + '</button>';
@@ -162,38 +182,38 @@ $(function () {
         $lastPage.removeClass('disabled');
         calculatePaginator();
     });
-    
+
     // Prev (<) gombra kattintás
     $prevPage.click(function () {
-        if (pageIndex != 1) {
-            buttonNew = pageIndex - 1;
-            buttonChanger = $('div#pagination button:contains(' + buttonNew + ')');
-            if (pageIndex - 1 == 1) {
+        if (parseInt(pageIndex) != 1) {
+            buttonNew = parseInt(pageIndex) - 1;
+            $buttonChanger = $('div#pagination button:contains(' + buttonNew + ')');
+            if (parseInt(pageIndex) - 1 == 1) {
                 $firstPage.click();
             }
             else {
-                buttonChanger.click();
+                $buttonChanger.click();
             }
         }
-    })
-    
+    });
+
     // Next (>) gombra kattintás
     $nextPage.click(function () {
-        if (pageIndex != maxPage) {
-            if (pageIndex == 0) {
-                pageIndex = pageIndex + 2;
-                $paginationButtons = $('div#pagination button:contains(' + pageIndex + ')');
-                $paginationButtons.click();
+        if (parseInt(pageIndex) != maxPage) {
+            if (parseInt(pageIndex) == 0) {
+                buttonNew = parseInt(pageIndex) + 2;
+                $buttonChanger = $('div#pagination button:contains(' + buttonNew + ')');
+                $buttonChanger.click();
             }
             else {
-                pageIndex++;
-                $paginationButtons = $('div#pagination button:contains(' + pageIndex + ')');
-                $paginationButtons.click();
+                buttonNew = parseInt(pageIndex) + 1;
+                $buttonChanger = $('div#pagination button:contains(' + buttonNew + ')');
+                $buttonChanger.click();
             }
         }
-    })
-    
-    // Last (>) gombra kattintás
+    });
+
+    // Last (>>) gombra kattintás
     $lastPage.click(function () {
         lastLoad = true;
         pageIndex = maxPage;
@@ -202,7 +222,7 @@ $(function () {
         $pagination.html('');
         paginationHTMLArray = [];
         calculatePaginator();
-    })
+    });
 
     RenderPage(1);
 
@@ -233,5 +253,5 @@ $(function () {
         let articleHtml = '<div><strong>' + article.title + ' (' + (index + 1) + ')</strong><p>'
             + article.body + '</p></div>';
         $contentWrapper.append(articleHtml);
-    }
+    };
 });
